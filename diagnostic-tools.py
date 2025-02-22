@@ -42,12 +42,12 @@ def submenu_rede():
         if opcao_submenu_rede == "1":
             if sistema == "Windows":
                 resultado = subprocess.run("ipconfig", shell=True, capture_output=True, text=True)
-            elif sistema == "Linux":  # Aqui inclui também o WSL
+            elif sistema == "Linux":  
                 resultado = subprocess.run("ip a", shell=True, capture_output=True, text=True)
             print("Saída:\n", resultado.stdout)
             if resultado.stderr:
                 print(f"Erro:\n{resultado.stderr}")
-            input("Pressione Enter para continuar...")  # Pausa aqui
+            input("Pressione Enter para continuar...")  
        
         ## Opção 2 - PING
         elif opcao_submenu_rede == "2":
@@ -106,13 +106,11 @@ def submenu_hardware():
         ### Submenu Hardware 2
         elif opcao_submenu_hard == "2":
             if platform.system() == "Windows":
-                # Executando o comando e capturando a saída
                 comando = "wmic memorychip get capacity, manufacturer, partnumber"
                 resultado = subprocess.run(comando,shell=True, capture_output=True, text=True)
             
             elif sistema == "Linux":
                 comando1 = "sudo lshw -C memory && free -h"
-                
                 resultado = subprocess.run(comando1, shell=True, capture_output=True, text=True)
 
                  
@@ -127,7 +125,21 @@ def submenu_hardware():
 
         ### Submenu Hardware 3
         elif opcao_submenu_hard == "3":
-            print("Voltando ao menu principal...")
+            if platform.system() == "Windows":
+               comando = "lsb_release -a"
+               resultado = subprocess.run(comando,shell=True, capture_output=True, text=True)
+
+            elif sistema == "Linux":
+                comando1 = "lsb_release -a"
+                resultado = subprocess.run(comando1, shell=True, capture_output=True, text=True)
+                   
+            if resultado.stderr:
+                print("Erro na execução do comando:", resultado.stderr)
+                
+            else: 
+                print("\nResultado da execução do comando:")
+                print(resultado.stdout)
+            #  
             time.sleep(1.7)
             limpar_tela()
             return
@@ -143,27 +155,45 @@ def submenu_software():
 
         opcao_submenu_soft = str(input("\n Escolha a opção desejada: "))
         if opcao_submenu_soft == "1":
-            print("Opção 1 de Software")
+            if platform.system() == "Windows":
+               comando = "wmic product get Name, Version"
+               resultado = subprocess.run(comando,shell=True, capture_output=True, text=True)
+            elif sistema == "Linux":
+                comando1 = "dpkg --list"
+                resultado = subprocess.run(comando1, shell=True, capture_output=True, text=True)
+            if resultado.stderr:
+                print("Erro na execução do comando:", resultado.stderr)
+                
+            else:
+                print(f"{verde}\nResultado da execução do comando:{reset}")
+                print(resultado.stdout)
             input("Pressione Enter para continuar...")
+
+            
         elif opcao_submenu_soft == "2":
             print("Opção 2 de Software")
             input("Pressione Enter para continuar...")
         elif opcao_submenu_soft == "3":
             print("Voltando ao menu principal...")
+
             time.sleep(1.7)
             limpar_tela()
             return
+
+
 
 # Identifica o sistema operacional
 sistema = platform.system()     # Detecta automaticamente o sistema operacional
 usuario = os.getenv("USERNAME") if sistema == "Windows" else os.getenv("USER")
 diretorio = os.getcwd()
+arquitetura = platform.architecture()[0]
+
+
 
 def get_os_info():
     sistema = platform.system()
     
     if sistema == "Windows":
-        # Corrige o comando para obter tanto a descrição quanto a versão
         result = subprocess.run(["wmic", "os", "get", "Caption,Version"], capture_output=True, text=True)
         lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         if len(lines) >= 2:
@@ -191,19 +221,20 @@ def get_os_info():
 # Função de MENU principal
 def menu_principal():
     limpar_tela()
-    sistema, caption, version = get_os_info()  # Corrige a chamada da função
+    sistema, caption, version,  = get_os_info()  # Corrige a chamada da função
     while True:
         # Exibe as informações
         print(f"{verde}Usuário logado:{reset} {usuario}")
-        print(f"{verde}Diretório atual:{reset} {diretorio}")
+        print(f"{verde}Diretório atual:{reset} {diretorio}"
+              f"\n{verde}Arquiterura:{reset} {arquitetura}")
         if sistema == "Windows":
             print(f"{verde}Sistema Operacional:{reset} {sistema} "
-                  #f"\n{verde}Distribuição:{reset} {caption}"
                   f"\n{verde}Version:{reset} {version}")
         elif sistema == "Linux":
             print(f"{verde}Sistema Operacional:{reset} {sistema} "
                   f"\n{verde}Distribuição:{reset} {caption}"
-                  f"\n{verde}Version:{reset} {version}")  
+                  f"\n{verde}Version:{reset} {version}"
+                  f"\n{verde}Arquiterura:{reset} {arquitetura}")  
             
         
 
